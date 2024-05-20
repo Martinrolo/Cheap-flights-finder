@@ -27,7 +27,8 @@ def home():
         # recipient = request.form["emailReceiver"]
 
         #Get Chrome webdriver
-        service = Service(executable_path=r'.\chromedriver.exe')
+        # service = Service(executable_path=r'.\chromedriver.exe')
+        service = Service(executable_path=r'/usr/lib/chromium-browser/chromedriver')
         options = webdriver.ChromeOptions()
         driver = webdriver.Chrome(service=service, options=options)
 
