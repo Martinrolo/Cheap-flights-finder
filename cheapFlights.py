@@ -9,7 +9,7 @@ import time
 # from email.mime.multipart import MIMEMultipart
 # from email.mime.text import MIMEText
 # from email.message import EmailMessage
-from flask import Flask, request, render_template 
+from flask import Flask, request, render_template, url_for 
   
 # Flask constructor
 app = Flask(__name__)   
@@ -27,8 +27,8 @@ def home():
         # recipient = request.form["emailReceiver"]
 
         #Get Chrome webdriver
-        # service = Service(executable_path=r'.\chromedriver.exe')
-        service = Service(executable_path=r'/usr/lib/chromium-browser/chromedriver')
+        service = Service(executable_path=r'.\chromedriver.exe')
+        # service = Service(executable_path=r'/usr/lib/chromium-browser/chromedriver')
         options = webdriver.ChromeOptions()
         driver = webdriver.Chrome(service=service, options=options)
 
@@ -64,19 +64,42 @@ def home():
         leaving_from_element = WebDriverWait(driver,5).until(
             EC.presence_of_element_located((By.XPATH, leaving_from_xpath))
         )
+        time.sleep(1)
 
-        print(leavingFrom)
         leaving_from_element.click()
         time.sleep(0.1)
+
+        leaving_from_xpath = '(//input[@jsname="yrriRe"])[4]'
+        leaving_from_element = WebDriverWait(driver,5).until(
+            EC.presence_of_element_located((By.XPATH, leaving_from_xpath))
+        )
+        time.sleep(1)
+
+        leaving_from_element.click()
+        time.sleep(0.1) 
+        # leaving_from_element.send_keys(leavingFrom)
+        # time.sleep(0.1) 
         leaving_from_element.clear()
-        time.sleep(0.1)
+        time.sleep(0.1) 
         leaving_from_element.send_keys(leavingFrom)
-        time.sleep(0.1)
-        leaving_from_element.send_keys(Keys.DOWN, Keys.RETURN) 
+        time.sleep(0.1) 
+        leaving_from_element.send_keys(Keys.DOWN, Keys.RETURN)
+        time.sleep(0.1) 
+
+        
+
+        #WAIT A BIT
+        time.sleep(0.6)
 
         
         #**********************  DEPARTURE DATES/PRICE FINDER  **********************
-        #The calendar opens alone so we wait a bit
+        #The calendar opens 
+        departure_calendar_xpath = '(//input[@jsname="yrriRe"])[5]'
+        departure_calendar_element = WebDriverWait(driver,5).until(
+            EC.presence_of_element_located((By.XPATH, departure_calendar_xpath))
+        )
+
+        departure_calendar_element.click()
         time.sleep(2)
 
         #Get the prices of ALL the dates
@@ -356,12 +379,15 @@ def home():
 
         
         #**********************  Click Search  **********************
-        search_button_xpath = '//button[@jsname="vLv7Lb"]'
-        search_element = WebDriverWait(driver,3).until(
-            EC.presence_of_element_located((By.XPATH, search_button_xpath))
-        )
-        search_element.click()
-        time.sleep(0.2)
+        try:
+            search_button_xpath = '//button[@jsname="vLv7Lb"]'
+            search_element = WebDriverWait(driver,3).until(
+                EC.presence_of_element_located((By.XPATH, search_button_xpath))
+            )
+            search_element.click()
+            time.sleep(0.2)
+        except:
+            print("No need to search")
 
         #******************* SAVE THE FLIGHT DATA ******************
         #Now that we have searched flights for a specific departing and returning date,
