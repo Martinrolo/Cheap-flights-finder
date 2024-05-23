@@ -1,3 +1,8 @@
+# TODO: add error management if flights are not found AND if destination/city doesnt exist
+# TODO: Separate in 2: when departure dates are found, display them, and ask the
+#       user to choose which dates to find a return date for
+
+
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
@@ -10,15 +15,95 @@ import time
 # from email.mime.text import MIMEText
 # from email.message import EmailMessage
 from flask import Flask, request, render_template, url_for 
+
+htmlHead = html = """\
+<html>
+    <head>
+        <style>
+            html {
+                width: 100%;
+                height: 100%;
+            }
+
+            body {
+                background-color: #a51165;
+                background-image: linear-gradient(225deg, #97135e 0%, #742fb1 50%, #872bc5 100%);
+
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                height: 100%;
+                margin: 2%;
+                overflow-x: hidden;
+                overflow-y: scroll;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+            }
+
+            table {
+                width: 800px;
+                border-collapse: collapse;
+                overflow: hidden;
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+
+            th,
+            td {
+                padding: 15px;
+                background-color: rgba(255,255,255,0.2);
+                color: #000000;
+            }
+
+            th {
+                text-align: left;
+            }
+
+            thead {
+                th {
+                    background-color: #27270821;
+                }
+            }
+
+            tbody {
+                tr {
+                    &:hover {
+                    background-color: rgba(255,255,255,0.3);
+                    }
+                }
+                td {
+                    position: relative;
+                    &:hover {
+                        &:before {
+                            content: "";
+                            position: absolute;
+                            left: 0;
+                            right: 0;
+                            top: -9999px;
+                            bottom: -9999px;
+                            background-color: rgba(255,255,255,0.2);
+                            z-index: -1;
+                        }
+                    }
+                }
+            }
+
+            a {
+                margin-bottom: 2%;
+            }
+        </style>
+    </head>
+    <body>
+"""
   
 # Flask constructor
 app = Flask(__name__)   
 
-@app.route('/', methods =["GET", "POST"])
-def home():
+@app.route('/result', methods =["GET", "POST"])
+def searchFlights():
     if request.method == "POST":
         #**********************  Get form data and webdriver  **********************
-
         #Get the user's input
         leavingFrom = request.form["leavingFrom"]
         destination = request.form["destination"]
@@ -203,6 +288,29 @@ def home():
         )
         depart_date_done_element.click()
         time.sleep(0.2)
+
+
+
+
+
+
+
+        # TODO: Return page with list of dates and let person select them.
+        html = htmlHead + "<table><thead><tr><th>Possible departure dates</th><th>Price</th></tr></thead><tbody>"
+
+        for i in range(len(datesBestPriceDepart)):
+            html += "<tr><td><p>" + datesBestPriceDepart[i] + "</p></td><td>" + str(bestPrice) + "</td></tr>"
+
+        #Close table
+        html += "</tbody></table>"
+        
+        #Close body
+        html += "</body>"
+
+        return html
+
+
+
 
         #Initialize flights array
         #We will return it at the end with all the info
@@ -603,9 +711,21 @@ def home():
             #return page
             print(html)
             return html
+        
+        # #Else if there are no flights
+        # else:
+        #   print...
     
     else:
+
+
+        #TODO: Redirect person to /
+
         return render_template("index.html")
+    
+@app.route('/', methods =["GET", "POST"])
+def index():
+    return render_template("index.html")
         
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, threaded=True)

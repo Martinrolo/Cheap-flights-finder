@@ -6,57 +6,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Form</title>
     <style>
-        html {
-            width: 100%;
-            height: 100%;
-        }
-
         body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            background-color: #F4D03F;
-            background-image: linear-gradient(132deg, #F4D03F 0%, #16A085 100%);
-        }
+            align-items: center;
+            background-color: #a51165;
+                background-image: linear-gradient(225deg, #97135e 0%, #742fb1 50%, #872bc5 100%);
 
-        h1, h5 {
-            color: rgb(0, 0, 0);
-            padding-top: 10px;
-            text-align: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
-        }
-
-        input {
-            background-color: white;
-            width: 50%;
-            font-size: 20px;
-            padding: 16px 16px;
-            border-radius: 10px;
-            border-color: black;
-            margin-bottom: 20px;
-        }
-
-        input:focus-within {
-            outline: none;
-            border-color: #5bd183;
-            border-width: 3px;
-        }
-
-        button {
-            background-color: #5bd183;
-            border-radius: 20px;
-            border-color: black;
-            font-size: 22px;
-            padding: 10px 18px;
-            text-align: center;
             display: flex;
-            margin: auto;
+            justify-content: center;
+            height: 100vh;
         }
 
-        button:hover {
-            opacity: 80%;
+        .form {
+            background-color: #15172b;
+            border-radius: 20px;
+            box-sizing: border-box;
+            min-height: 1px;
+            padding: 20px;
+            width: 320px;
+        }
+
+        .title {
+            color: #eee;
+            font-family: sans-serif;
+            font-size: 36px;
+            font-weight: 600;
+            margin-top: 30px;
+        }
+
+        .subtitle {
+            color: #eee;
+            font-family: sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .input-container {
+            height: 50px;
+            position: relative;
+            width: 100%;
+        }
+
+        .ic1 {
+            margin-top: 40px;
+        }
+
+        .ic2 {
+            margin-top: 30px;
+        }
+
+        .input {
+            background-color: #303245;
+            border-radius: 12px;
+            border: 0;
+            box-sizing: border-box;
+            color: #eee;
+            font-size: 18px;
+            height: 100%;
+            outline: 0;
+            padding: 4px 20px 0;
+            width: 100%;
+        }
+
+        .cut {
+            background-color: #15172b;
+            border-radius: 10px;
+            height: 20px;
+            left: 20px;
+            position: absolute;
+            top: -20px;
+            transform: translateY(0);
+            transition: transform 200ms;
+            width: 90px;
+        }
+
+        .cut-short {
+            width: 50px;
+        }
+
+        .input:focus ~ .cut,
+        .input:not(:placeholder-shown) ~ .cut {
+            transform: translateY(8px);
+        }
+
+        .placeholder {
+            color: #65657b;
+            font-family: sans-serif;
+            left: 20px;
+            line-height: 14px;
+            pointer-events: none;
+            position: absolute;
+            transform-origin: 0 50%;
+            transition: transform 200ms, color 200ms;
+            top: 20px;
+        }
+
+        .input:focus ~ .placeholder,
+        .input:not(:placeholder-shown) ~ .placeholder {
+            transform: translateY(-30px) translateX(10px) scale(0.75);  
+        }
+
+        .input:not(:placeholder-shown) ~ .placeholder {
+            color: #808097;
+        }
+
+        .input:focus ~ .placeholder {
+            color: #dc2f55;
+        }
+
+        .submit {
+            background-color: #08d;
+            border-radius: 12px;
+            border: 0;
+            box-sizing: border-box;
+            color: #eee;
             cursor: pointer;
-            transition: 1s;
+            font-size: 18px;
+            font-weight: bolder;
+            font-family: sans-serif;
+            height: 50px;
+            margin-top: 38px;
+            outline: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .submit:active {
+            background-color: #06b;
         }
 
         div#loading {
@@ -64,40 +140,41 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            /* background: url(/loading.gif) no-repeat; */
             cursor: wait;
         }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
     </style>
 </head>
 <body>
     <div id="loading">
-        <h1>Finding the best dates for you..</h1>
+        <div class="title">Finding the best dates for you..</div>
         <img src='/static/loading.gif' alt="Loading...">
     </div>
-    <div id="content">
-        <form action="#" method="POST">
-            <h1>Cheap flights</h1>
-            <input type="text" name="leavingFrom" placeholder="Leaving from" autocomplete="off" required>
-            <input type="text" name="destination" placeholder="Destination" autocomplete="off" required>
-            <!-- <input type="password" name="password" placeholder="Password (your email)" autocomplete="off" required>
-            <input type="email" name="emailSender" placeholder="Your email" autocomplete="off" required>
-            <input type="email" name="emailReceiver" placeholder="Receiver's email (to get flight info)" autocomplete="off" required> -->
-            <button type="submit" onclick="loading();">Search</button>
-        </form>
-    </div>
+    <form id="form" class="form" action="result" method="POST">
+        <div class="title">Welcome</div>
+        <div class="subtitle">Let's find you some great deals!</div>
+
+        <div class="input-container ic1">
+          <input id="firstname" name="leavingFrom" class="input" type="text" placeholder=" " />
+          <div class="cut"></div>
+          <label for="firstname" class="placeholder">Leaving from</label>
+        </div>
+
+        <div class="input-container ic2">
+          <input id="lastname" name="destination" class="input" type="text" placeholder=" " />
+          <div class="cut"></div>
+          <label for="lastname" class="placeholder">Destination</label>
+        </div>
+
+        <button type="text" class="submit" onclick="loading();">Search</button>
+      </div>
+    </form>
 
     <!-- Script pour chargement lors de l'envoi du formulaire -->
     <script type="text/javascript">// <![CDATA[
         function loading(){
             document.getElementById('loading').style.display = 'flex';
-            document.getElementById('content').style.display = 'none';
+            document.getElementById('form').style.display = 'none';
         }
     // ]]></script>
 </body>
