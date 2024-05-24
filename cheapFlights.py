@@ -505,11 +505,29 @@ def searchReturningDates():
 
         #Try the 1st date of the best return dates
         trip_date_xpath = '//div[@data-iso="' + firstDateBestPriceRetour[0] + '"]'
+
+
+        departing_date_element = WebDriverWait(driver,3).until(
+            EC.visibility_of_element_located((By.XPATH, trip_date_xpath))
+        )
+
         departing_date_element = WebDriverWait(driver,3).until(
             EC.presence_of_element_located((By.XPATH, trip_date_xpath))
         )
-        departing_date_element.click() #Click on the departure date
-        time.sleep(0.2)
+
+        try:
+            departing_date_element.click() #Click on the departure date
+            time.sleep(0.2)
+        except:
+            #Get the buttton to change the page
+            calendar_page_change_xpath = '(//div[@jsname="v6lL4e"])[1]'
+            calendar_page_change_element = WebDriverWait(driver,5).until(
+                EC.presence_of_element_located((By.XPATH, calendar_page_change_xpath))
+            )
+            
+            #Click twice and wait a bit for the prices to appear
+            calendar_page_change_element.click() 
+            time.sleep(0.8)
         
         #Click OK to leave calendar
         depart_date_done_xpath = '//div[@jsname="WCieBd"]'
