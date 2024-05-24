@@ -1,7 +1,4 @@
 # TODO: add error management if flights are not found AND if destination/city doesnt exist
-# TODO: Separate in 2: when departure dates are found, display them, and ask the
-#       user to choose which dates to find a return date for
-
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -222,106 +219,117 @@ def searchDepartingDates():
         # ************** RETURN HTML PAGE FOR DEPARTURE DATE SELECTION **************
         #First, add the head (styles) and the loading div
         html = htmlHead 
-        html += """
-        <div id="loading">
-            <div class="title">Finding the best dates for you..</div>
-            <img src='/static/loading.gif' alt="Loading...">
-        </div>"""
 
-        #Add the title and the table head
-        html += "<div id='content'><h1>Here is a list of the best departure dates</h1>"
-        html += "<h3>Select up to 3 dates to get the return dates and flight info</h3>"
-        html += "<table><thead><tr><th>Possible departure dates</th><th>Price</th></tr></thead><tbody>"
+        #If there are flights, we display them
+        if(nameDatesBestPriceDepart):
 
-        #For each date, show the name of the date and the price in a row of the table
-        for i in range(len(nameDatesBestPriceDepart)):
-            html += "<tr id='" + str(datesBestPriceDepart[i]) + "'><td><p>" + str(nameDatesBestPriceDepart[i]) + "</p></td><td>" + str(bestPrice) + "</td></tr>"
+            html += """
+            <div id="loading">
+                <div class="title">Finding the best dates for you..</div>
+                <img src='/static/loading.gif' alt="Loading...">
+            </div>"""
 
-        #Close table
-        html += "</tbody></table>"
+            #Add the title and the table head
+            html += "<div id='content'><h1>Here is a list of the best departure dates</h1>"
+            html += "<h3>Select up to 3 dates to get the return dates and flight info</h3>"
+            html += "<table><thead><tr><th>Possible departure dates</th><th>Price</th></tr></thead><tbody>"
 
-        #Add the button to search return dates
-        html += "<button type='submit' id='search' class='submit' onclick='loading();'>Search</button></div>"
+            #For each date, show the name of the date and the price in a row of the table
+            for i in range(len(nameDatesBestPriceDepart)):
+                html += "<tr id='" + str(datesBestPriceDepart[i]) + "'><td><p>" + str(nameDatesBestPriceDepart[i]) + "</p></td><td>" + str(bestPrice) + "$</td></tr>"
 
-        #Add script to allow user to choose date
-        html += """
-            <script>
-                let nbSelected = 0;
-                let datesToSearch = [];
-                let datesNames = []
+            #Close table
+            html += "</tbody></table>"
 
-                document.querySelectorAll('tr').forEach(function(tr) {
-                    tr.addEventListener('click', function() {
-                        if(tr.classList.contains('selected')) {
-                            //Remove the class, decrement nbSelected and remove the date from the array
-                            tr.classList.remove('selected')
-                            nbSelected--;
-                            let indexToRemove = datesToSearch.indexOf(tr.id);
-                            datesToSearch.splice(indexToRemove, 1)
-                            datesNames.splice(indexToRemove, 1)
-                        }
+            #Add the button to search return dates
+            html += "<button type='submit' id='search' class='submit' onclick='loading();'>Search</button></div>"
 
-                        else if(nbSelected < 3) {
-                            //Add the class, increment nbSelected and add the date to the array
-                            tr.classList.add('selected');
-                            nbSelected++;
-                            datesToSearch.push(tr.id)
+            #Add script to allow user to choose date
+            html += """
+                <script>
+                    let nbSelected = 0;
+                    let datesToSearch = [];
+                    let datesNames = []
 
-
-
-
-                            datesNames.push(tr.children[0].children[0].innerText)
-                            console.log("NAME PUSHED: " + datesNames[0])
-                        }
-
-                        //TEST
-                        console.log("DATES: ")
-                        datesToSearch.forEach(function(date) {
-                            console.log(date)
-                        })
-                    })
-                })
-
-                //FUNCTION LOADING
-                function loading(){
-                    //Only hide them if there is a search to make
-                    if (nbSelected > 0) {
-                        document.getElementById('loading').style.display = 'flex';
-                        document.getElementById('content').style.display = 'none';
-                    }
-                }
-
-                //EVENT LISTENER to send the request
-                document.getElementById('search').addEventListener('click', function() {
-                    //If at least 1 element is selected
-                    if (nbSelected > 0) {
-                        var xhr = new XMLHttpRequest();
-                        // we defined the xhr
-
-                        xhr.onreadystatechange = function () {
-                            if (this.readyState != 4) return;
-
-                            if (this.status == 200) {
-                                var responseHTML = this.responseText;
-                                console.log(responseHTML)
-                                document.open();
-                                document.write(responseHTML);
-                                document.close();
+                    document.querySelectorAll('tr').forEach(function(tr) {
+                        tr.addEventListener('click', function() {
+                            if(tr.classList.contains('selected')) {
+                                //Remove the class, decrement nbSelected and remove the date from the array
+                                tr.classList.remove('selected')
+                                nbSelected--;
+                                let indexToRemove = datesToSearch.indexOf(tr.id);
+                                datesToSearch.splice(indexToRemove, 1)
+                                datesNames.splice(indexToRemove, 1)
                             }
 
-                            // end of state change: it can be after some time (async)
-                        };
+                            else if(nbSelected < 3) {
+                                //Add the class, increment nbSelected and add the date to the array
+                                tr.classList.add('selected');
+                                nbSelected++;
+                                datesToSearch.push(tr.id)
 
-                        xhr.open('POST', '/returnDates', true);
-                        xhr.setRequestHeader('Content-Type', 'application/json');
 
-                        const data = {dates: datesToSearch, names: datesNames}
 
-                        xhr.send(JSON.stringify(data));
+
+                                datesNames.push(tr.children[0].children[0].innerText)
+                                console.log("NAME PUSHED: " + datesNames[0])
+                            }
+
+                            //TEST
+                            console.log("DATES: ")
+                            datesToSearch.forEach(function(date) {
+                                console.log(date)
+                            })
+                        })
+                    })
+
+                    //FUNCTION LOADING
+                    function loading(){
+                        //Only hide them if there is a search to make
+                        if (nbSelected > 0) {
+                            document.getElementById('loading').style.display = 'flex';
+                            document.getElementById('content').style.display = 'none';
+                        }
                     }
-                })
-            </script>
-        """
+
+                    //EVENT LISTENER to send the request
+                    document.getElementById('search').addEventListener('click', function() {
+                        //If at least 1 element is selected
+                        if (nbSelected > 0) {
+                            var xhr = new XMLHttpRequest();
+                            // we defined the xhr
+
+                            xhr.onreadystatechange = function () {
+                                if (this.readyState != 4) return;
+
+                                if (this.status == 200) {
+                                    var responseHTML = this.responseText;
+                                    console.log(responseHTML)
+                                    document.open();
+                                    document.write(responseHTML);
+                                    document.close();
+                                }
+
+                                // end of state change: it can be after some time (async)
+                            };
+
+                            xhr.open('POST', '/returnDates', true);
+                            xhr.setRequestHeader('Content-Type', 'application/json');
+
+                            const data = {dates: datesToSearch, names: datesNames}
+
+                            xhr.send(JSON.stringify(data));
+                        }
+                    })
+                </script>
+            """
+        
+        #Else, we display a message of error, close the browser and put a link back to the home page
+        else:
+            html += "<h1>No flights were found.</h1>"
+            html += "<h2>Make sure that the departing and returning city names are valid</h2>"
+            html += '<a href="/" class="link-button">Link to the search page</a>'
+            driver.quit()
 
         #Close body and driver
         html += "</body></html>"
@@ -355,9 +363,6 @@ def searchReturningDates():
         for i in range(len(chosenDepartDates)):
             #INITIALIZE DICTIONNARY FOR EACH DEPARTURE DATE POSSIBLE
             flightsDict = {}
-
-            #Limit to 3 departing dates (in case there are more. You can change it!)
-            if (i == 3): break
 
             #Open departure calendar
             departing_box_xpath = '(//input[@jsname="yrriRe"])[5]'
@@ -626,7 +631,7 @@ def searchReturningDates():
                     html += "</tr></tbody></table>"
 
                 elif (i == len(flightsArray) - 1):
-                    html += '<br><a href="' + flightsArray[i]["Link"] + '">Link to the booking page</a>'
+                    html += '<br><a href="' + flightsArray[i]["Link"] + '" class="link-button">Link to the booking page</a>'
                     
                 else:
                     #Add table headers
