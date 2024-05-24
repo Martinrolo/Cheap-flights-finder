@@ -14,113 +14,44 @@ import time
 # from email.mime.multipart import MIMEMultipart
 # from email.mime.text import MIMEText
 # from email.message import EmailMessage
-from flask import Flask, request, render_template, url_for 
+from flask import Flask, jsonify, render_template_string, request, render_template, url_for 
 
 htmlHead = html = """\
 <html>
     <head>
-        <style>
-            html {
-                width: 100%;
-                height: 100%;
-            }
-
-            body {
-                background-color: #a51165;
-                background-image: linear-gradient(225deg, #97135e 0%, #742fb1 50%, #872bc5 100%);
-
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                width: 100%;
-                height: 100%;
-                margin: 2%;
-                overflow-x: hidden;
-                overflow-y: scroll;
-                background-repeat: no-repeat;
-                background-attachment: fixed;
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
-            }
-
-            table {
-                width: 800px;
-                border-collapse: collapse;
-                overflow: hidden;
-                box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            }
-
-            th,
-            td {
-                padding: 15px;
-                background-color: rgba(255,255,255,0.2);
-                color: #000000;
-            }
-
-            th {
-                text-align: left;
-            }
-
-            thead {
-                th {
-                    background-color: #27270821;
-                }
-            }
-
-            tbody {
-                tr {
-                    &:hover {
-                    background-color: rgba(255,255,255,0.3);
-                    }
-                }
-                td {
-                    position: relative;
-                    &:hover {
-                        &:before {
-                            content: "";
-                            position: absolute;
-                            left: 0;
-                            right: 0;
-                            top: -9999px;
-                            bottom: -9999px;
-                            background-color: rgba(255,255,255,0.2);
-                            z-index: -1;
-                        }
-                    }
-                }
-            }
-
-            a {
-                margin-bottom: 2%;
-            }
-        </style>
+        <link rel= "stylesheet" type= "text/css" href= "/static/styles/styles.css">
     </head>
     <body>
 """
-  
+
+# #Arrays that we will fill with the data and get the best price
+indexBestDatesDepart = []
+nameDatesBestPriceDepart = []
+name_dates_elements = []
+
+#Get Chrome webdriver
+service = Service(executable_path=r'.\chromedriver.exe')
+# service = Service(executable_path=r'/usr/lib/chromium-browser/chromedriver')
+options = webdriver.ChromeOptions()
+driver = None
+
 # Flask constructor
 app = Flask(__name__)   
 
 @app.route('/result', methods =["GET", "POST"])
-def searchFlights():
+def searchDepartingDates():
     if request.method == "POST":
         #**********************  Get form data and webdriver  **********************
         #Get the user's input
         leavingFrom = request.form["leavingFrom"]
         destination = request.form["destination"]
-        # password = request.form["password"]
-        # sender = request.form["emailSender"]
-        # recipient = request.form["emailReceiver"]
-
-        #Get Chrome webdriver
-        service = Service(executable_path=r'.\chromedriver.exe')
-        # service = Service(executable_path=r'/usr/lib/chromium-browser/chromedriver')
-        options = webdriver.ChromeOptions()
-        driver = webdriver.Chrome(service=service, options=options)
 
         #Get departure and destination airports from user input
         going_to = destination
 
         #Go to Google Flights
+        global driver
+        driver = webdriver.Chrome()
         driver.get("https://www.google.com/travel/flights")
 
         #**********************  Type the destination  **********************
@@ -149,7 +80,7 @@ def searchFlights():
         leaving_from_element = WebDriverWait(driver,5).until(
             EC.presence_of_element_located((By.XPATH, leaving_from_xpath))
         )
-        time.sleep(1)
+        time.sleep(0.1)
 
         leaving_from_element.click()
         time.sleep(0.1)
@@ -158,20 +89,16 @@ def searchFlights():
         leaving_from_element = WebDriverWait(driver,5).until(
             EC.presence_of_element_located((By.XPATH, leaving_from_xpath))
         )
-        time.sleep(1)
+        time.sleep(0.1)
 
         leaving_from_element.click()
         time.sleep(0.1) 
-        # leaving_from_element.send_keys(leavingFrom)
-        # time.sleep(0.1) 
         leaving_from_element.clear()
         time.sleep(0.1) 
         leaving_from_element.send_keys(leavingFrom)
         time.sleep(0.1) 
         leaving_from_element.send_keys(Keys.DOWN, Keys.RETURN)
         time.sleep(0.1) 
-
-        
 
         #WAIT A BIT
         time.sleep(0.6)
@@ -203,17 +130,19 @@ def searchFlights():
 
         #Find NAMES of all the dates
         name_dates_xpath = '//div[@jsname="nEWxA"]'
+        global name_dates_elements
         name_dates_elements = WebDriverWait(driver,5).until(
             EC.presence_of_all_elements_located((By.XPATH, name_dates_xpath))
         )
         time.sleep(0.1)
 
-        #arrays that we will fill with the data and get the best price
+        #Arrays that we will fill with the data and get the best price
         bestPrice = 100000
         datesBestPriceDepart = []
+        global nameDatesBestPriceDepart
         nameDatesBestPriceDepart = []
+        global indexBestDatesDepart 
         indexBestDatesDepart = []
-        firstDateBestPriceRetour = []
 
         #Loop all the dates, compare the prices of each date and get the cheapest dates
         for i in range (len(prices_elements)):
@@ -274,7 +203,8 @@ def searchFlights():
                 else:
                     continue
 
-            except:
+            except Exception as e:
+                print(e)
                 continue
 
         #TEST: Print the best price and the array of the best days for the leaving flight
@@ -289,37 +219,140 @@ def searchFlights():
         depart_date_done_element.click()
         time.sleep(0.2)
 
+        # ************** RETURN HTML PAGE FOR DEPARTURE DATE SELECTION **************
+        #First, add the head (styles) and the loading div
+        html = htmlHead 
+        html += """
+        <div id="loading">
+            <div class="title">Finding the best dates for you..</div>
+            <img src='/static/loading.gif' alt="Loading...">
+        </div>"""
 
+        #Add the title and the table head
+        html += "<div id='content'><h1>Here is a list of the best departure dates</h1>"
+        html += "<h3>Select up to 3 dates to get the return dates and flight info</h3>"
+        html += "<table><thead><tr><th>Possible departure dates</th><th>Price</th></tr></thead><tbody>"
 
-
-
-
-
-        # TODO: Return page with list of dates and let person select them.
-        html = htmlHead + "<table><thead><tr><th>Possible departure dates</th><th>Price</th></tr></thead><tbody>"
-
-        for i in range(len(datesBestPriceDepart)):
-            html += "<tr><td><p>" + datesBestPriceDepart[i] + "</p></td><td>" + str(bestPrice) + "</td></tr>"
+        #For each date, show the name of the date and the price in a row of the table
+        for i in range(len(nameDatesBestPriceDepart)):
+            html += "<tr id='" + str(datesBestPriceDepart[i]) + "'><td><p>" + str(nameDatesBestPriceDepart[i]) + "</p></td><td>" + str(bestPrice) + "</td></tr>"
 
         #Close table
         html += "</tbody></table>"
-        
-        #Close body
-        html += "</body>"
 
-        return html
+        #Add the button to search return dates
+        html += "<button type='submit' id='search' class='submit' onclick='loading();'>Search</button></div>"
+
+        #Add script to allow user to choose date
+        html += """
+            <script>
+                let nbSelected = 0;
+                let datesToSearch = [];
+                let datesNames = []
+
+                document.querySelectorAll('tr').forEach(function(tr) {
+                    tr.addEventListener('click', function() {
+                        if(tr.classList.contains('selected')) {
+                            //Remove the class, decrement nbSelected and remove the date from the array
+                            tr.classList.remove('selected')
+                            nbSelected--;
+                            let indexToRemove = datesToSearch.indexOf(tr.id);
+                            datesToSearch.splice(indexToRemove, 1)
+                            datesNames.splice(indexToRemove, 1)
+                        }
+
+                        else if(nbSelected < 3) {
+                            //Add the class, increment nbSelected and add the date to the array
+                            tr.classList.add('selected');
+                            nbSelected++;
+                            datesToSearch.push(tr.id)
 
 
 
+
+                            datesNames.push(tr.children[0].children[0].innerText)
+                            console.log("NAME PUSHED: " + datesNames[0])
+                        }
+
+                        //TEST
+                        console.log("DATES: ")
+                        datesToSearch.forEach(function(date) {
+                            console.log(date)
+                        })
+                    })
+                })
+
+                //FUNCTION LOADING
+                function loading(){
+                    //Only hide them if there is a search to make
+                    if (nbSelected > 0) {
+                        document.getElementById('loading').style.display = 'flex';
+                        document.getElementById('content').style.display = 'none';
+                    }
+                }
+
+                //EVENT LISTENER to send the request
+                document.getElementById('search').addEventListener('click', function() {
+                    //If at least 1 element is selected
+                    if (nbSelected > 0) {
+                        var xhr = new XMLHttpRequest();
+                        // we defined the xhr
+
+                        xhr.onreadystatechange = function () {
+                            if (this.readyState != 4) return;
+
+                            if (this.status == 200) {
+                                var responseHTML = this.responseText;
+                                console.log(responseHTML)
+                                document.open();
+                                document.write(responseHTML);
+                                document.close();
+                            }
+
+                            // end of state change: it can be after some time (async)
+                        };
+
+                        xhr.open('POST', '/returnDates', true);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+
+                        const data = {dates: datesToSearch, names: datesNames}
+
+                        xhr.send(JSON.stringify(data));
+                    }
+                })
+            </script>
+        """
+
+        #Close body and driver
+        html += "</body></html>"
+
+        return render_template_string(html)
+
+
+@app.route('/returnDates', methods =["GET", "POST"])
+def searchReturningDates():
+    print("in good route!")
+    if request.method == "POST":
+        #Get driver and go to Google Flights
+        global driver
 
         #Initialize flights array
         #We will return it at the end with all the info
         flightsArray = []
+        firstDateBestPriceRetour = []
+
+        # Retrieve the JSON data from the request body
+        json_data = request.get_json()
+        chosenDepartDates = json_data['dates']
+        namesDepartDates = json_data['names']
+
+        # Print the received data to the console
+        print(chosenDepartDates)
 
         #********************** LOOP THROUGH ALL DEPARTURE DATES***********************
 
         #We loop through all the departing dates, to get the best returning dates for each.
-        for i in range(len(datesBestPriceDepart)):
+        for i in range(len(chosenDepartDates)):
             #INITIALIZE DICTIONNARY FOR EACH DEPARTURE DATE POSSIBLE
             flightsDict = {}
 
@@ -335,7 +368,7 @@ def searchFlights():
             time.sleep(0.2)
 
             #Try ALL the dates
-            trip_date_xpath = '//div[@data-iso="' + datesBestPriceDepart[i] + '"]'
+            trip_date_xpath = '//div[@data-iso="' + chosenDepartDates[i] + '"]'
             departing_date_element = WebDriverWait(driver,3).until(
                 EC.presence_of_element_located((By.XPATH, trip_date_xpath))
             )
@@ -383,10 +416,6 @@ def searchFlights():
             #Loop through all the returning prices
             for j in range (len(prices_elements)):
                 try:
-                    #We will ONLY check the returning flights in a 2 month span of the departing date.
-                    if (j > indexBestDatesDepart[i] + 57 and prices_elements[j].text == ""):
-                        break
-
                     #If there is a price to the date
                     if(prices_elements[j].text != ""):
                         #TEST display date and price
@@ -432,7 +461,7 @@ def searchFlights():
             time.sleep(0.2)
 
             #ADD FLIGHT DEPARTURE DATE + RETURN DATES + PRICE
-            flightsDict['Departing date'] = nameDatesBestPriceDepart[i]
+            flightsDict['Departing date'] = namesDepartDates[i]
             flightsDict['Returning date'] = nameDatesBestPriceRetour
             flightsDict['Price'] = bestPrice 
 
@@ -462,7 +491,7 @@ def searchFlights():
         time.sleep(0.2)
 
         #Try the 1st date of the best departure dates
-        trip_date_xpath = '//div[@data-iso="' + datesBestPriceDepart[0] + '"]'
+        trip_date_xpath = '//div[@data-iso="' + chosenDepartDates[0] + '"]'
         departing_date_element = WebDriverWait(driver,3).until(
             EC.presence_of_element_located((By.XPATH, trip_date_xpath))
         )
@@ -557,93 +586,10 @@ def searchFlights():
 
         #Only send an email if we have actual flight info      
         if flightsArray:     
-
-            # email = EmailMessage()
-            # email = MIMEMultipart('alternative')
-            # email["From"] = sender
-            # email["To"] = recipient
-            # email["Subject"] = "Vols pas chers: {} --> {}".format(leavingFrom, destination)
-
             #Set the HTML display of the email
-            html = """\
-            <html>
-                <head>
-                    <style>
-                        html {
-                            width: 100%;
-                            height: 100%;
-                        }
-
-                        body {
-                            display: flex;
-                            flex-direction: column;
-                            align-items: center;
-                            width: 100%;
-                            height: 100%;
-                            margin: 2%;
-                            overflow-x: hidden;
-                            overflow-y: scroll;
-                            background-color: #F4D03F;
-                            background-image: linear-gradient(132deg, #F4D03F 0%, #16A085 100%);
-                            background-repeat: no-repeat;
-                            background-attachment: fixed;
-                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
-                        }
-
-                        table {
-                            width: 800px;
-                            border-collapse: collapse;
-                            overflow: hidden;
-                            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-                        }
-
-                        th,
-                        td {
-                            padding: 15px;
-                            background-color: rgba(255,255,255,0.2);
-                            color: #000000;
-                        }
-
-                        th {
-                            text-align: left;
-                        }
-
-                        thead {
-                            th {
-                                background-color: #27270821;
-                            }
-                        }
-
-                        tbody {
-                            tr {
-                                &:hover {
-                                background-color: rgba(255,255,255,0.3);
-                                }
-                            }
-                            td {
-                                position: relative;
-                                &:hover {
-                                    &:before {
-                                        content: "";
-                                        position: absolute;
-                                        left: 0;
-                                        right: 0;
-                                        top: -9999px;
-                                        bottom: -9999px;
-                                        background-color: rgba(255,255,255,0.2);
-                                        z-index: -1;
-                                    }
-                                }
-                            }
-                        }
-
-                        a {
-                            margin-bottom: 2%;
-                        }
-                    </style>
-                </head>
-                <body>
-            """
+            html = htmlHead
+            html += "<h1>Done! Here are all the possible travel dates</h1>"
+            html += "<h3>(for the departing dates you chose earlier)</h3>"
             
             #For each departure/returns pairs
             for i in range(len(flightsArray)):
@@ -696,21 +642,9 @@ def searchFlights():
                     #Display price
                     html += "</td><td><p>" + str(flightsArray[i]['Price']) + "$</p></td></tr></tbody></table><br>"
 
-            # htmlText = MIMEText(html, 'html')
-            # email.attach(htmlText)
+        html += "</body></html>"
 
-            # #Login to the input email and send the mail
-            # smtp = smtplib.SMTP("smtp-mail.outlook.com", port=587)
-            # smtp.starttls()
-            # smtp.login(sender, password)
-            # smtp.sendmail(sender, recipient, email.as_string())
-            # smtp.quit()
-
-            html += "</body>"
-
-            #return page
-            print(html)
-            return html
+        return render_template_string(html)
         
         # #Else if there are no flights
         # else:

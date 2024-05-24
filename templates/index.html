@@ -155,13 +155,13 @@
         <div class="subtitle">Let's find you some great deals!</div>
 
         <div class="input-container ic1">
-          <input id="firstname" name="leavingFrom" class="input" type="text" placeholder=" " />
+          <input id="firstname" name="leavingFrom" class="input" type="text" placeholder=" " required/>
           <div class="cut"></div>
           <label for="firstname" class="placeholder">Leaving from</label>
         </div>
 
         <div class="input-container ic2">
-          <input id="lastname" name="destination" class="input" type="text" placeholder=" " />
+          <input id="lastname" name="destination" class="input" type="text" placeholder=" " required/>
           <div class="cut"></div>
           <label for="lastname" class="placeholder">Destination</label>
         </div>
@@ -173,8 +173,13 @@
     <!-- Script pour chargement lors de l'envoi du formulaire -->
     <script type="text/javascript">// <![CDATA[
         function loading(){
-            document.getElementById('loading').style.display = 'flex';
-            document.getElementById('form').style.display = 'none';
+            console.log("TEXT: " + document.getElementById('firstname').value.length )
+            if(document.getElementById('firstname').value.length && 
+                document.getElementById('lastname').value.length) {         
+                    console.log("all good!")           
+                    document.getElementById('loading').style.display = 'flex';
+                    document.getElementById('form').style.display = 'none';
+                }
         }
     // ]]></script>
 </body>

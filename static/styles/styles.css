@@ -1,0 +1,113 @@
+html {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    background-color: #a51165;
+    background-image: linear-gradient(225deg, #97135e 0%, #742fb1 50%, #872bc5 100%);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin: 2%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
+}
+
+table {
+    width: 800px;
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+th,
+td {
+    padding: 15px;
+    background-color: rgba(255,255,255,0.2);
+    color: #000000;
+}
+
+th {
+    text-align: left;
+}
+
+thead {
+    th {
+        background-color: #27270821;
+    }
+}
+
+tbody {
+    tr {
+        &:hover {
+            border: 1px solid black;
+        }
+    }
+    td {
+        position: relative;
+        &:hover {
+            &:before {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: -9999px;
+                bottom: -9999px;
+                background-color: rgba(255,255,255,0.2);
+                z-index: -1;
+            }
+        }
+    }
+}
+
+.selected {
+    background-color: green;
+}
+
+div#loading {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: wait;
+}
+
+.title {
+    color: #eee;
+    font-family: sans-serif;
+    font-size: 36px;
+    font-weight: 600;
+    margin-top: 30px;
+}
+
+.submit {
+    background-color: #08d;
+    border-radius: 12px;
+    border: 0;
+    box-sizing: border-box;
+    color: #eee;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bolder;
+    font-family: sans-serif;
+    height: 50px;
+    margin-top: 38px;
+    outline: 0;
+    text-align: center;
+    width: 100%;
+}
+
+h1, h3 {
+    text-align: center;
+}
+
+a {
+    margin-bottom: 2%;
+}
