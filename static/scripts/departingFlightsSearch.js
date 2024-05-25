@@ -47,7 +47,7 @@ document.getElementById('search').addEventListener('click', function() {
             }
         };
 
-        xhr.open('POST', '/result', true);
+        xhr.open('POST', '/searchDepartingFlights', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
 
         const data = {leavingFrom: leavingFrom, goingTo: goingTo, dates: chosenDates}

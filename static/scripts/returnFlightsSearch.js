@@ -61,7 +61,7 @@ document.getElementById('search').addEventListener('click', function() {
             // end of state change: it can be after some time (async)
         };
 
-        xhr.open('POST', '/returnDates', true);
+        xhr.open('POST', '/searchReturningFlights', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
 
         const data = {dates: datesToSearch, names: datesNames}
