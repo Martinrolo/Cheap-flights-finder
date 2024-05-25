@@ -27,31 +27,11 @@
           <div class="cut"></div>
           <label for="lastname" class="placeholder">Destination</label>
         </div>
-
-
-
-<!-- TODO: add calendar to choose dates -->
-
-
-
-        <button type="text" class="submit" onclick="loading();">Search</button>
+        <button type="submit" class="submit" id="search">Search</button>
       </div>
     </form>
 
-    <div class="calendar"></div>
-
-    <!-- Script pour chargement lors de l'envoi du formulaire -->
-    <script type="text/javascript">// <![CDATA[
-        function loading(){
-            console.log("TEXT: " + document.getElementById('firstname').value.length )
-            if(document.getElementById('firstname').value.length && 
-                document.getElementById('lastname').value.length) {         
-                    console.log("all good!")           
-                    document.getElementById('loading').style.display = 'flex';
-                    document.getElementById('form').style.display = 'none';
-                }
-        }
-    // ]]></script>
+    <div id="calendar" class="calendar"></div>
 
     <script src="../static/scripts/calendar.js"></script>
     <script src="../static/scripts/search.js"></script>

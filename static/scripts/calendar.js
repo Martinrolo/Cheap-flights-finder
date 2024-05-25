@@ -186,11 +186,6 @@ function CalendarControl() {
               date.style.background = "red"
               chosenDates.push(calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + date.getAttribute('data-num'))
             }
-
-            console.log("CHOSEN DATES: ")
-            for(const chosenDate of chosenDates) {
-              console.log("-" + chosenDate)
-            }
           })
         })
 
