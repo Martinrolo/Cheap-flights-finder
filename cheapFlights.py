@@ -21,9 +21,7 @@ htmlHead = """\
     <body>
 """
 
-html = "<h1>hi!</h1>"
-
-# html = ""
+html = htmlHead + "<h1>There are no past search to see.</h1><a href='/' class='link-button'>Link to the search page</a></body>"
 
 # #Arrays that we will fill with the data and get the best price
 indexBestDatesDepart = []
@@ -247,86 +245,14 @@ def searchDepartingDates():
             html += "</tbody></table>"
 
             #Add the button to search return dates
-            html += "<button type='submit' id='search' class='submit' onclick='loading();'>Search</button></div>"
+            html += "<button type='submit' id='search' class='submit' onclick='loading();'>Search</button>"
+
+            #Add a button back to the main menu and CLOSE THE CONTENT DIV       
+            html += "<a href='/' class='link-button'>Link to the search page</a></body></div>"
 
             #Add script to allow user to choose date
             html += """
-                <script>
-                    let nbSelected = 0;
-                    let datesToSearch = [];
-                    let datesNames = []
-
-                    document.querySelectorAll('tr').forEach(function(tr) {
-                        tr.addEventListener('click', function() {
-                            if(tr.classList.contains('selected')) {
-                                //Remove the class, decrement nbSelected and remove the date from the array
-                                tr.classList.remove('selected')
-                                nbSelected--;
-                                let indexToRemove = datesToSearch.indexOf(tr.id);
-                                datesToSearch.splice(indexToRemove, 1)
-                                datesNames.splice(indexToRemove, 1)
-                            }
-
-                            else if(nbSelected < 3) {
-                                //Add the class, increment nbSelected and add the date to the array
-                                tr.classList.add('selected');
-                                nbSelected++;
-                                datesToSearch.push(tr.id)
-
-
-
-
-                                datesNames.push(tr.children[0].children[0].innerText)
-                                console.log("NAME PUSHED: " + datesNames[0])
-                            }
-
-                            //TEST
-                            console.log("DATES: ")
-                            datesToSearch.forEach(function(date) {
-                                console.log(date)
-                            })
-                        })
-                    })
-
-                    //FUNCTION LOADING
-                    function loading(){
-                        //Only hide them if there is a search to make
-                        if (nbSelected > 0) {
-                            document.getElementById('loading').style.display = 'flex';
-                            document.getElementById('content').style.display = 'none';
-                        }
-                    }
-
-                    //EVENT LISTENER to send the request
-                    document.getElementById('search').addEventListener('click', function() {
-                        //If at least 1 element is selected
-                        if (nbSelected > 0) {
-                            var xhr = new XMLHttpRequest();
-                            // we defined the xhr
-
-                            xhr.onreadystatechange = function () {
-                                if (this.readyState != 4) return;
-
-                                if (this.status == 200) {
-                                    var responseHTML = this.responseText;
-                                    console.log(responseHTML)
-                                    document.open();
-                                    document.write(responseHTML);
-                                    document.close();
-                                }
-
-                                // end of state change: it can be after some time (async)
-                            };
-
-                            xhr.open('POST', '/returnDates', true);
-                            xhr.setRequestHeader('Content-Type', 'application/json');
-
-                            const data = {dates: datesToSearch, names: datesNames}
-
-                            xhr.send(JSON.stringify(data));
-                        }
-                    })
-                </script>
+                <script src="../static/scripts/returnFlightsSearch.js"></script>
             """
         
         #Else, we display a message of error, close the browser and put a link back to the home page
@@ -664,7 +590,9 @@ def searchReturningDates():
                     html += "</tr></tbody></table>"
 
                 elif (i == len(flightsArray) - 1):
+                    #Display the link to the booking page and a link back to the search page
                     html += '<br><a href="' + flightsArray[i]["Link"] + '" class="link-button" target="_blank">Link to the booking page</a>'
+                    html += '<a href="/" class="link-button">Link to the search page</a>'
                     
                 else:
                     #Add table headers
