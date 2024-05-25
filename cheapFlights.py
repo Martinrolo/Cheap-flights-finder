@@ -13,13 +13,17 @@ import time
 # from email.message import EmailMessage
 from flask import Flask, jsonify, render_template_string, request, render_template, url_for 
 
-htmlHead = html = """\
+htmlHead = """\
 <html>
     <head>
         <link rel= "stylesheet" type= "text/css" href= "/static/styles/styles.css">
     </head>
     <body>
 """
+
+html = "<h1>hi!</h1>"
+
+# html = ""
 
 # #Arrays that we will fill with the data and get the best price
 indexBestDatesDepart = []
@@ -37,6 +41,7 @@ app = Flask(__name__)
 
 @app.route('/result', methods =["GET", "POST"])
 def searchDepartingDates():
+    global html
     if request.method == "POST":
         #**********************  Get form data and webdriver  **********************
         #Get the user's input
@@ -335,11 +340,17 @@ def searchDepartingDates():
         html += "</body></html>"
 
         return render_template_string(html)
+    
+    #Else, if the request is done
+    else:
+        return render_template_string(html)
 
 
 @app.route('/returnDates', methods =["GET", "POST"])
 def searchReturningDates():
     print("in good route!")
+    print(request)
+    global html
     if request.method == "POST":
         #Get driver and go to Google Flights
         global driver
@@ -485,7 +496,7 @@ def searchReturningDates():
             EC.presence_of_element_located((By.XPATH, return_box_xpath))
         )
         return_box_element.click() 
-        time.sleep(1.5)
+        time.sleep(1)
 
         #REINITIALIZE, then click on the 2 dates (we select the 1st departing and 1st returning date as default)
         reinitialize_xpath = '(//span[@jsname="V67aGc"])[31]'
@@ -528,6 +539,10 @@ def searchReturningDates():
             #Click twice and wait a bit for the prices to appear
             calendar_page_change_element.click() 
             time.sleep(0.8)
+
+            #Try again to click
+            departing_date_element.click() #Click on the departure date
+            time.sleep(0.2)
         
         #Click OK to leave calendar
         depart_date_done_xpath = '//div[@jsname="WCieBd"]'
@@ -649,7 +664,7 @@ def searchReturningDates():
                     html += "</tr></tbody></table>"
 
                 elif (i == len(flightsArray) - 1):
-                    html += '<br><a href="' + flightsArray[i]["Link"] + '" class="link-button">Link to the booking page</a>'
+                    html += '<br><a href="' + flightsArray[i]["Link"] + '" class="link-button" target="_blank">Link to the booking page</a>'
                     
                 else:
                     #Add table headers
@@ -674,11 +689,7 @@ def searchReturningDates():
         #   print...
     
     else:
-
-
-        #TODO: Redirect person to /
-
-        return render_template("index.html")
+        return render_template(html)
     
 @app.route('/', methods =["GET", "POST"])
 def index():

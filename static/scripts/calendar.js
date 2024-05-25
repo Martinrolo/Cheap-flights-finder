@@ -1,5 +1,8 @@
+let chosenDates = [];
+
 function CalendarControl() {
     const calendar = new Date();
+
     const calendarControl = {
       localDate: new Date(),
       prevMonthLastDate: null,
@@ -66,13 +69,12 @@ function CalendarControl() {
         );
         monthLabel.innerHTML = calendarControl.calMonthName[calendar.getMonth()];
       },
-      selectDate: function (e) {
-        console.log(
-          `${e.target.textContent} ${
-            calendarControl.calMonthName[calendar.getMonth()]
-          } ${calendar.getFullYear()}`
-        );
-      },
+      // selectDate: function (e) {
+      //   console.log(
+      //     `${(calendar.getFullYear() + 1)} ${
+      //       calendar.getMonth()} ${e.target.textContent}`
+      //   );
+      // },
       plotSelectors: function () {
         document.querySelector(
           ".calendar"
@@ -120,6 +122,15 @@ function CalendarControl() {
             document.querySelector(
               ".calendar .calendar-body"
             ).innerHTML += `<div class="number-item" data-num=${count}><a class="dateNumber" href="#">${count++}</a></div>`;
+
+            //Get the date in ISO format for each day
+            let dataISO = calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + (count-1)
+
+            //If one day in the month is in our chosen date, then we set its color to red
+            if(chosenDates.includes(dataISO)) {
+              let chosenDepartureDateDiv = document.querySelector('[data-num="' + (String)(count - 1) + '"]');
+              chosenDepartureDateDiv.style.background = "red";
+            } 
           }
         }
         //remaining dates after month dates
@@ -127,6 +138,15 @@ function CalendarControl() {
           document.querySelector(
             ".calendar .calendar-body"
           ).innerHTML += `<div class="number-item" data-num=${count}><a class="dateNumber" href="#">${count++}</a></div>`;
+
+          //Get the date in ISO format for each day
+          let dataISO = calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + (count-1)
+
+          //If one day in the month is in our chosen date, then we set its color to red         
+          if(chosenDates.includes(dataISO)) {
+            let chosenDepartureDateDiv = document.querySelector('[data-num="' + (String)(count - 1) + '"]');
+            chosenDepartureDateDiv.style.background = "red";
+          } 
         }
         calendarControl.highlightToday();
         calendarControl.plotPrevMonthDates(prevMonthDatesArray);
@@ -149,6 +169,32 @@ function CalendarControl() {
               false
             );
         }
+
+        // Event listener to select the date
+        let chosenDepartureDateDiv = document.querySelectorAll(".number-item");
+        chosenDepartureDateDiv.forEach(function(date) {
+          date.addEventListener('click', function() {
+            if(date.style.background == "red") {
+              console.log("enlever:")
+              console.log(chosenDates[0])
+              date.style.background = ""
+              chosenDates = chosenDates.filter((chosenDate) => chosenDate != (calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + date.getAttribute('data-num')))
+            }
+
+            else if(chosenDates.length < 2) {
+              console.log(calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + date.getAttribute('data-num'));
+              date.style.background = "red"
+              chosenDates.push(calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + date.getAttribute('data-num'))
+            }
+
+            console.log("CHOSEN DATES: ")
+            for(const chosenDate of chosenDates) {
+              console.log("-" + chosenDate)
+            }
+          })
+        })
+
+        
       },
       highlightToday: function () {
         let currentMonth = calendarControl.localDate.getMonth() + 1;
