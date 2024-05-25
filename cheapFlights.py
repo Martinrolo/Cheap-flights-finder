@@ -7,11 +7,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-# import smtplib
-# from email.mime.multipart import MIMEMultipart
-# from email.mime.text import MIMEText
-# from email.message import EmailMessage
-from flask import Flask, jsonify, render_template_string, request, render_template, url_for 
+from flask import Flask, render_template_string, request, render_template, url_for 
 
 htmlHead = """\
 <html>
@@ -42,12 +38,20 @@ def searchDepartingDates():
     global html
     if request.method == "POST":
         #**********************  Get form data and webdriver  **********************
-        #Get the user's input
-        leavingFrom = request.form["leavingFrom"]
-        destination = request.form["destination"]
 
-        #Get departure and destination airports from user input
-        going_to = destination
+        # Retrieve the JSON data from the request body
+        json_data = request.get_json()
+
+        #Get departure and destination airports from user input AND the dates
+        leavingFrom = json_data['leavingFrom']
+        going_to = json_data['goingTo']
+        firstChosenDate = json_data['dates'][0]
+        secondChosenDate = json_data['dates'][1]
+
+        #Test
+        print(firstChosenDate)
+        print(secondChosenDate)
+        print(firstChosenDate < secondChosenDate)
 
         #Go to Google Flights
         global driver
@@ -538,7 +542,6 @@ def searchReturningDates():
 
         #Add the url of the booking page to the array
         urlBooking = driver.current_url
-        print(urlBooking)
         flightsArray.append({'Link': urlBooking})
 
         #RETURN THE ARRAY OF ALL DEPARTURE DATES WITH THE POSSIBLE RETURN DATES
@@ -546,7 +549,7 @@ def searchReturningDates():
         driver.quit()
 
 
-        #**********************  EMAIL SENDING  **********************
+        #**********************  DISPLAY THE INFO  **********************
 
         #Only send an email if we have actual flight info      
         if flightsArray:     
@@ -617,7 +620,7 @@ def searchReturningDates():
         #   print...
     
     else:
-        return render_template(html)
+        return render_template_string(html)
     
 @app.route('/', methods =["GET", "POST"])
 def index():

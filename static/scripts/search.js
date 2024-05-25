@@ -1,9 +1,20 @@
 //EVENT LISTENER to send the request
 document.getElementById('search').addEventListener('click', function() {
+    //Get the input of the user (leavingFrom and goingTo airports)
+    let leavingFrom = document.getElementById('firstname').value
+    let goingTo = document.getElementById('lastname').value
+
     // Check if 2 dates are chosen AND if there is a departing + returning date
-    if( document.getElementById('firstname').value.length && 
-        document.getElementById('lastname').value.length &&
-        chosenDates.length == 2) {      
+    if( leavingFrom.length && 
+        goingTo.length &&
+        chosenDates.length == 2) {   
+            
+        //SORT the chosen dates array
+        if(chosenDates[0] > chosenDates[1]) {
+            temp = chosenDates[0];
+            chosenDates[0] = chosenDates[1];
+            chosenDates[1] = temp
+        }
             
         //TEST Display dates chosen    
         console.log("CHOSEN DATES: ")
@@ -15,32 +26,32 @@ document.getElementById('search').addEventListener('click', function() {
         document.getElementById('loading').style.display = 'flex';
         document.getElementById('form').style.display = 'none';
         document.getElementById('calendar').style.display = 'none';
-    }
 
-    if(false) {
+        // ************ HTTP REQUEST ************
+
+
+
         var xhr = new XMLHttpRequest();
-        // we defined the xhr
 
+        //Request response
         xhr.onreadystatechange = function () {
             if (this.readyState != 4) return;
 
             if (this.status == 200) {
                 var responseHTML = this.responseText;
-                console.log(responseHTML)
+
+                //Display the HTML response text
                 document.open();
                 document.write(responseHTML);
                 document.close();
             }
-
-            // end of state change: it can be after some time (async)
         };
 
-        xhr.open('POST', '/returnDates', true);
+        xhr.open('POST', '/result', true);
         xhr.setRequestHeader('Content-Type', 'application/json');
 
-        const data = {dates: datesToSearch, names: datesNames}
+        const data = {leavingFrom: leavingFrom, goingTo: goingTo, dates: chosenDates}
 
         xhr.send(JSON.stringify(data));
-    } 
-
+    }
 })
