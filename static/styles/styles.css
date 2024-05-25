@@ -115,7 +115,7 @@ a {
 .link-button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #007bff;
+    background-color: #005e02;
     color: #fff;
     text-decoration: none;
     border: none;
@@ -125,5 +125,5 @@ a {
 }
 
 .link-button:hover {
-    background-color: #0056b3;
+    background-color: #00a403;
 }

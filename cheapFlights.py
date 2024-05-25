@@ -151,6 +151,9 @@ def searchDepartingDates():
         #Loop all the dates, compare the prices of each date and get the cheapest dates
         for i in range (len(prices_elements)):
             try:
+                if dates_elements[i].get_attribute('data-iso') > secondChosenDate:
+                    break
+                
                 #Every 2 months, we change the calendar pages to get the next 2 months
                 if (i > 57 and prices_elements[i].text == ""):
 
@@ -172,7 +175,10 @@ def searchDepartingDates():
                     )
 
                 #Display the date and the prices (if they are not empty)
-                if(prices_elements[i].text != ""):
+                if(prices_elements[i].text != "" and 
+                   dates_elements[i].get_attribute('data-iso') >= firstChosenDate and
+                   dates_elements[i].get_attribute('data-iso') <= secondChosenDate):
+                    
                     #TEST
                     print(dates_elements[i].get_attribute('data-iso'))
                     print(prices_elements[i].text.strip("$"))

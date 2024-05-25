@@ -174,17 +174,33 @@ function CalendarControl() {
         let chosenDepartureDateDiv = document.querySelectorAll(".number-item");
         chosenDepartureDateDiv.forEach(function(date) {
           date.addEventListener('click', function() {
+            //FORMAT THE DATE: Add a leading 0 if the date number is below 10
+            let day, month
+
+            if (calendar.getMonth() + 1 < 10) 
+              month = "0" + (calendar.getMonth() + 1);
+            else
+              month = calendar.getMonth() + 1
+
+            if (date.getAttribute('data-num') < 10) 
+              day = "0" + date.getAttribute('data-num');
+            else
+              day = date.getAttribute('data-num')
+
+
+
+
             if(date.style.background == "red") {
               console.log("enlever:")
               console.log(chosenDates[0])
               date.style.background = ""
-              chosenDates = chosenDates.filter((chosenDate) => chosenDate != (calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + date.getAttribute('data-num')))
+              chosenDates = chosenDates.filter((chosenDate) => chosenDate != (calendar.getFullYear() + "-" + month + "-" + day))
             }
 
             else if(chosenDates.length < 2) {
-              console.log(calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + date.getAttribute('data-num'));
               date.style.background = "red"
-              chosenDates.push(calendar.getFullYear() + "-" + (calendar.getMonth() + 1) + "-" + date.getAttribute('data-num'))
+              chosenDates.push(calendar.getFullYear() + "-" + month + "-" + day)
+              console.log(chosenDates[0])
             }
           })
         })
