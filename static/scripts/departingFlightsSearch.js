@@ -7,29 +7,23 @@ document.getElementById('search').addEventListener('click', function() {
     // Check if 2 dates are chosen AND if there is a departing + returning date
     if( leavingFrom.length && 
         goingTo.length &&
-        chosenDates.length == 2) {   
-            
-        //SORT the chosen dates array
-        if(chosenDates[0] > chosenDates[1]) {
-            temp = chosenDates[0];
-            chosenDates[0] = chosenDates[1];
-            chosenDates[1] = temp
-        }
-            
-        //TEST Display dates chosen    
-        console.log("CHOSEN DATES: ")
-        for(const chosenDate of chosenDates) {
-          console.log("-" + chosenDate)
-        }
-
+        (chosenDates.length != 1)) {   
+ 
         //Hide the form and calendar, and display loading animation
         document.getElementById('loading').style.display = 'flex';
         document.getElementById('form').style.display = 'none';
         document.getElementById('calendar').style.display = 'none';
+            
+        //SORT the chosen dates array
+        if(chosenDates != 0) {
+            if(chosenDates[0] > chosenDates[1]) {
+                temp = chosenDates[0];
+                chosenDates[0] = chosenDates[1];
+                chosenDates[1] = temp
+            }
+        }
 
         // ************ HTTP REQUEST ************
-
-
 
         var xhr = new XMLHttpRequest();
 

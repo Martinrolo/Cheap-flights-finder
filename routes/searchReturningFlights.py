@@ -16,7 +16,7 @@ returning_route = Blueprint('searchReturningFlights', __name__, template_folder=
 def searchReturningDates():
     #Get the global driver
     driver = getDriver()
-    
+
     if request.method == "POST":
         #Get driver and go to Google Flights
 
@@ -89,6 +89,13 @@ def searchReturningDates():
             )
             time.sleep(0.1)
 
+            #Find NAMES of all the dates
+            name_dates_xpath = '//div[@jsname="nEWxA"]'
+            name_dates_elements = WebDriverWait(driver,5).until(
+                EC.presence_of_all_elements_located((By.XPATH, name_dates_xpath))
+            )
+            time.sleep(0.1)
+
             # ******* FIND BEST RETURN PRICES/DATES *******
             bestPrice = 10000
             datesBestPriceRetour = []
@@ -114,6 +121,7 @@ def searchReturningDates():
 
                             #Get names of the dates
                             nameDatesBestPriceRetour.clear()
+                            print(name_dates_elements[j])
                             nameDatesBestPriceRetour.append(name_dates_elements[j].get_attribute('aria-label'))
 
                         #If the price is as goodd

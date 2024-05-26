@@ -23,8 +23,13 @@ def searchDepartingDates():
         #Get departure and destination airports from user input AND the dates
         leavingFrom = json_data['leavingFrom']
         going_to = json_data['goingTo']
-        firstChosenDate = json_data['dates'][0]
-        secondChosenDate = json_data['dates'][1]
+
+        if(json_data['dates']):
+            firstChosenDate = json_data['dates'][0]
+            secondChosenDate = json_data['dates'][1]
+        else:
+            firstChosenDate = False
+            secondChosenDate = False
 
         #Test
         print(firstChosenDate)
@@ -34,7 +39,7 @@ def searchDepartingDates():
         #Go to Google Flights
         driver = webdriver.Chrome()
         set_driver(driver)
-        
+
         driver.get("https://www.google.com/travel/flights")
 
         #**********************  Type the destination  **********************
@@ -127,7 +132,7 @@ def searchDepartingDates():
         #Loop all the dates, compare the prices of each date and get the cheapest dates
         for i in range (len(prices_elements)):
             try:
-                if dates_elements[i].get_attribute('data-iso') > secondChosenDate:
+                if secondChosenDate and dates_elements[i].get_attribute('data-iso') > secondChosenDate:
                     break
 
                 #Every 2 months, we change the calendar pages to get the next 2 months
@@ -151,9 +156,10 @@ def searchDepartingDates():
                     )
 
                 #Display the date and the prices (if they are not empty)
-                if(prices_elements[i].text != "" and 
-                   dates_elements[i].get_attribute('data-iso') >= firstChosenDate and
-                   dates_elements[i].get_attribute('data-iso') <= secondChosenDate):
+                if(prices_elements[i].text != ""):
+
+                    if(secondChosenDate and (dates_elements[i].get_attribute('data-iso') < firstChosenDate or
+                        dates_elements[i].get_attribute('data-iso') > secondChosenDate)): continue
                     
                     #TEST
                     print(dates_elements[i].get_attribute('data-iso'))
